@@ -17,6 +17,7 @@ instance Show Monomial where
     where
       showC c'
         | c' == 1.0 = ""
+        | c' < 0 = "(" ++ show c' ++ ")"
         | otherwise = show c'
       showT (_, 0) = ""
       showT (x, 1) = [x]
