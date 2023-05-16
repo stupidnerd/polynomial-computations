@@ -25,6 +25,8 @@ polynomialFun = do
   putStrLn helloString
   userActivityLoop empty
 
+-- | Бесконечная рекурсия обработки ввода пользовательских команд. 
+-- Многочлен сохраняем в словаре (Map String Polynomial) по имени
 userActivityLoop :: Map String Polynomial -> IO ()
 userActivityLoop kvp = do
   putStrLn "Введите команду:"
@@ -34,6 +36,7 @@ userActivityLoop kvp = do
     Nothing -> userActivityLoop kvp
     Just res -> handleCommand res kvp
 
+-- | Обрабатываем команды, которые вводит пользователь - на каждую свое действие
 handleCommand :: UserCommand -> Map String Polynomial -> IO ()
 handleCommand cmd =
   case cmd of
@@ -47,6 +50,9 @@ handleCommand cmd =
     Print -> printPoly
     Quit -> quit
 
+-- В функциях ниже описано обращение с пользователем по вызванным им командам
+
+-- | Ввод и сохранение многочлена.
 enterPoly :: Map String Polynomial -> IO ()
 enterPoly kvp = do
   putStrLn "Введите многочлен:"
@@ -61,6 +67,7 @@ enterPoly kvp = do
       let newMap = insert name poly kvp
       userActivityLoop newMap
 
+-- | Вывод на экран сохраненного многочлена
 printPoly :: Map String Polynomial -> IO ()
 printPoly kvp = do
   putStrLn enterPolyName
@@ -73,6 +80,7 @@ printPoly kvp = do
       putStrLn valueNotFound
       userActivityLoop kvp
 
+-- | Функция расчета многочлена - в зависимости от второго аргумента - это может быть сумма, отрицание или умножение (см. ниже 3 функи)
 calculatePoly :: Map String Polynomial -> (Polynomial -> Polynomial -> Polynomial) -> IO ()
 calculatePoly kvp f = do
   putStrLn enterPolyName
@@ -94,15 +102,19 @@ calculatePoly kvp f = do
       putStrLn valueNotFound
       userActivityLoop kvp
 
+-- | Функция суммы
 summPoly :: Map String Polynomial -> IO ()
 summPoly kvp = calculatePoly kvp algebraicPolynomialSumm
 
+-- | Функция вычитания
 subPoly :: Map String Polynomial -> IO ()
 subPoly kvp = calculatePoly kvp algebraicPolynomialSub
 
+-- | Функция умножения
 multPoly :: Map String Polynomial -> IO ()
 multPoly kvp = calculatePoly kvp algebraicPolynomialMult
 
+-- | Возведение многочлена в степень
 toDegreePoly :: Map String Polynomial -> IO ()
 toDegreePoly kvp = do
   putStrLn enterPolyName
@@ -118,6 +130,7 @@ toDegreePoly kvp = do
       putStrLn valueNotFound
       userActivityLoop kvp
 
+-- | Производная по заданной переменной
 derivativePoly :: Map String Polynomial -> IO ()
 derivativePoly kvp = do
   putStrLn enterPolyName
@@ -133,6 +146,7 @@ derivativePoly kvp = do
       putStrLn valueNotFound
       userActivityLoop kvp
 
+-- | Замена переменной на многочлен
 replaceTerm :: Map String Polynomial -> IO ()
 replaceTerm kvp = do
   putStrLn enterPolyName
@@ -155,11 +169,15 @@ replaceTerm kvp = do
       putStrLn valueNotFound
       userActivityLoop kvp
 
+-- | Собственно выход из программы - все наши сохранения живут только пока программа запущена или нам понадобилась бы бд.
+-- Но мы пишем калькулятор, поэтому норм решение.
 quit :: Map String Polynomial -> IO ()
 quit _ = do 
   putStrLn "Я не сохраню твой стейт. Страдай!"
 
------
+-- Ниже описаны вспомогательные функции
+
+-- | Получение имени и проверка его в наших сохранениях - не сохраняем многочлен с именем, которое у нас уже сохранено.
 getName :: Map String Polynomial -> IO String
 getName kvp = do
   putStrLn "Введите имя для сохранения:"
@@ -170,6 +188,7 @@ getName kvp = do
       getName kvp
     else return name
 
+-- | Получение степени, если пользователь ввел фигню - будет вводить до тех пор, пока не введет правильно
 getExp :: IO Int
 getExp = do
   putStrLn "Введите степень, в которую хотите возвести многочлен (целое число):"
@@ -177,6 +196,7 @@ getExp = do
   let mb = readMaybe str
   maybe getExp return mb
 
+-- | Получение имени переменной - так же, ввел неверное значение (не одинарный символ в одинарных кавычках) - вводит заново
 getTerm :: String -> IO Char
 getTerm s = do
   putStrLn s
@@ -186,10 +206,13 @@ getTerm s = do
     Just r -> return r
     Nothing -> getTerm s
 
+-- | Доп проверка, что имя многочлена существует в наших сохранениях
 isNameAlreadyExist :: String -> Map String Polynomial -> Bool
 isNameAlreadyExist key kvp = case lookup key kvp of
   Just _ -> True
   Nothing -> False
+
+-- Дальше описаны строковые константы, которые видит пользователь.
 
 helloString :: String
 helloString =

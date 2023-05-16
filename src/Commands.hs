@@ -4,6 +4,7 @@ module Commands
   )
 where
 
+-- | Команды, которые вводит пользователь по заданию + команда Quit, чтоб выходить из программы.
 data UserCommand
   = EnterPoly
   | Summ
