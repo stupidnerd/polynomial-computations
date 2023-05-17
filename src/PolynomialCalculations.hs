@@ -28,7 +28,7 @@ simplifyExponents :: Monomial -> Monomial
 simplifyExponents mono = Mono (coefficient mono) simplifiedTerms
   where
     termsGrouped = groupBy (\(var1, _) (var2, _) -> var1 == var2) $ sortBy (\(v1, _) (v2, _) -> compare v1 v2) (terms mono)
-    powSum terms = sum [pow | (_, pow) <- terms]
+    powSum terms' = sum [pow | (_, pow) <- terms']
     simplifiedTerms = [(var, powSum powGroup) | powGroup@((var, _) : _) <- termsGrouped]
 
 compareMonomials :: Monomial -> Monomial -> Ordering
@@ -129,7 +129,7 @@ handleMonomial m ch p =
     else [m]
 
 isContainCharOccurance :: Monomial -> Char -> Bool
-isContainCharOccurance (Mono _ terms) = helper' terms
+isContainCharOccurance (Mono _ terms') = helper' terms'
   where
     helper' [] _ = False
     helper' ((var, _) : ts) ch = (var == ch) || helper' ts ch
@@ -148,9 +148,9 @@ monoToPoly :: Monomial -> Polynomial
 monoToPoly m = Poly [m]
 
 deleteCharOccurance :: Monomial -> Char -> (Maybe Monomial, (Float, Int))
-deleteCharOccurance (Mono coef terms) ch =
-  let termsAfterDeletion = newTerms terms ch
-   in (if (not . null) termsAfterDeletion then Just $ Mono coef termsAfterDeletion else Nothing, (coef, deletedTermExp ch terms))
+deleteCharOccurance (Mono coef terms') ch =
+  let termsAfterDeletion = newTerms terms' ch
+   in (if (not . null) termsAfterDeletion then Just $ Mono coef termsAfterDeletion else Nothing, (coef, deletedTermExp ch terms'))
   where
     newTerms :: [(Char, Int)] -> Char -> [(Char, Int)]
     newTerms [] _ = []
